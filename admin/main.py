@@ -18,7 +18,7 @@ while req != "stop":
     elif req == "3":
         admin.upload_img()
     elif req == "4":
-        pass
+        admin.mailing()
     elif req == "5":
         admin.statistic()
     else:

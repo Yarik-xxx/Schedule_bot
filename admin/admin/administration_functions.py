@@ -9,6 +9,22 @@ import config
 import json
 
 
+vk_session = vk_api.VkApi(token=config.TOKEN_VK)
+
+
+def send_message(user_id, text, attachment=None):
+    """Функция для отправки сообщения"""
+    args = {
+        'user_id': user_id,
+        'message': text,
+        'random_id': 0
+    }
+    if attachment:
+        args['attachment'] = attachment
+
+    vk_session.method('messages.send', args)
+
+
 def query_all():
     # подключение к БД
     conn = psycopg2.connect(**config.db_settings)
@@ -93,3 +109,43 @@ def statistic():
     counter_group = sorted(counter_group.items(), key=lambda item: item[1], reverse=True)
     for group, amount in counter_group:
         print(f"\t\t╞ {group:8}| {amount}")
+
+
+def mailing_all(text: str):
+    """Функция отправки сообщений всем пользователям"""
+    #result = query_all()
+    result = [(config.DEV_ADMIN,)]
+
+    count_row = len(result)
+
+    for row in result:
+        try:
+            send_message(row[0], text)
+            print(f"\t\t{row[0]} - Отправлено")
+        except Exception as err:
+            print(f"\t\t{row[0]} - Ошибка {err}")
+
+    print(f"\n\tРассылка завершена. Всего оповещено: {count_row}")
+
+
+def mailing():
+    while True:
+        message = input("\tВведите сообщение для рассылки:")
+        send_message(config.DEV_ADMIN, message)
+
+        print("\tСообщение отправлено в тестовом режиме")
+
+        req = input("\tЗапустить рассылку (y - отправить, r - изменить сообщение, s - выход)\n--->")
+        if req == "r":
+            continue
+        elif req == "s":
+            break
+        elif req == "y":
+            mailing_all(message)
+            break
+        else:
+            print("\tНеизвестный ввод. Остановка функции рассылки")
+            break
+
+
+

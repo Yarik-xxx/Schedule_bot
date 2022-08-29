@@ -113,14 +113,14 @@ async def start_dialogue_admin(message: Message, pool_connections: psycopg2.pool
 
         # оповестить админов группы
         text = f"Поступил запрос на связь с администратором. Ссылка на профиль: https://vk.com/id{message.from_id}"
-        for admin_id in config.ID_ADMINS:
+        for admin_id in config.IDS_ADMINS:
             try:
                 await bot.api.messages.send(peer_id=admin_id, message=text, random_id=0)
             except:
                 continue
 
     except:
-        await message.answer(tmp.error_update_group, keyboard=brd.KEYBOARD_BASE)
+        await message.answer(tmp.error_start_dialogue, keyboard=brd.KEYBOARD_BASE)
 
 
 async def stop_dialogue_admin(message: Message, pool_connections: psycopg2.pool, users_states: dict):
@@ -139,6 +139,6 @@ async def stop_dialogue_admin(message: Message, pool_connections: psycopg2.pool,
 
 
     except:
-        await message.answer(tmp.error_update_group, keyboard=brd.KEYBOARD_CONTACT)
+        await message.answer(tmp.error_stop_dialogue, keyboard=brd.KEYBOARD_CONTACT)
 
 
