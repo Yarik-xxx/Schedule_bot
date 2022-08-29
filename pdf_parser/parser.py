@@ -1,5 +1,6 @@
 import json
 import os
+import pprint
 import re
 import pdfplumber
 
@@ -16,6 +17,8 @@ day_week_list_eng = ["MON", "TUE", "WED", "THU", "FRI", "SAT",
                      "mon", "tue", "web", "thu", "fri", "sat"]
 
 schedule_json = {}
+
+differences = {}
 
 
 # get_all_path_schedule составляет список относительных путей до файлов с расписанием занятий
@@ -130,8 +133,28 @@ def print_ignore():
         print(message)
 
 
+def file_comparison():
+    with open("schedule.json", "r", encoding="utf-8") as read_file:
+        schedules_old = json.load(read_file)
+
+    for dif in (set(schedules_old) ^ set(schedule_json)):
+        differences[dif] = {}
+        differences[dif]["old"] = schedules_old.get(dif, {})
+        differences[dif]["new"] = schedule_json.get(dif, {})
+
+
+def print_differences():
+    for dif, schedule_dif in differences.items():
+        print(f"Группа {dif}:")
+        print(f"{'_' * 10}Старая версия{'_' * 10}")
+        pprint.pprint(schedule_dif["old"])
+        print(f"{'_' * 10}Новая версия{'_' * 10}")
+        pprint.pprint(schedule_dif["new"])
+        print("\n", "_______" * 10)
+
+
 # точка входа
-def main():
+def parse_schedules():
     for path in get_all_path_schedule("schedule_group"):
         file = pdfplumber.open(path)
         for number in range(len(file.pages)):
@@ -151,11 +174,18 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
-
+    parse_schedules()
     print(f"Расписание составлено (всего: {len(schedule_json)} групп)")
+
     print("Полученные ошибки: ")
     print_ignore()
+
+    file_comparison()
+    print(f"Всего изменений: {len(differences)}")
+
+    pr_dif = input("Вывести изменения (y/n): ")
+    if pr_dif == "y":
+        print_differences()
 
     save = input("\nСохранить расписание [y/n]: ")
     if save == "y":
