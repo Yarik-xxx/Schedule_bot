@@ -9,6 +9,11 @@ import pkg.handlers as handlers
 import pkg.init.init as init
 import config
 
+
+# DEBUG режим
+DEBUG = True
+
+
 # логирование
 logging.getLogger("vkbottle").setLevel(logging.INFO)
 logging.getLogger("asyncio").setLevel(logging.INFO)
@@ -26,7 +31,7 @@ users_group = init.init_users_group(pool_con)
 users_states = init.init_user_states(pool_con)
 
 # переменная для работы с ботом
-bot = Bot(config.TOKEN)
+bot = Bot(config.DEBUG_TOKEN if DEBUG else config.TOKEN)
 
 
 # хендлер на все входящие сообщения
