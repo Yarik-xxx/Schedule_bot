@@ -1,5 +1,6 @@
 from vkbottle import Keyboard, KeyboardButtonColor, Text
 
+# основная клавиатура
 KEYBOARD_BASE = (
     Keyboard(one_time=False, inline=False)
     .add(Text("Сегодня"), color=KeyboardButtonColor.SECONDARY)
@@ -27,6 +28,7 @@ KEYBOARD_BASE = (
     .get_json()
 )
 
+# клавиатура диалога с администратором группы
 KEYBOARD_CONTACT = (
     Keyboard(one_time=False, inline=False)
     .add(Text("Завершить диалог"), color=KeyboardButtonColor.NEGATIVE)

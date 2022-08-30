@@ -4,8 +4,8 @@ import pkg.templates.variables as var
 import datetime
 
 
+# Преобразует запросы сегодня/завтра в дни недели
 def transform_request(request):
-    """Преобразует запросы 'сегодня' и 'завтра' в дни недели"""
     day_week_num = datetime.date.today()  # дата сегодня
 
     if request == 'завтра':
@@ -14,6 +14,7 @@ def transform_request(request):
     return ["", "пн", "вт", "ср", "чт", "пт", "сб", "вс"][day_week_num.isoweekday()]
 
 
+# Формирует время занятия в зависимости от предмета (у ФК другое расписание)
 def get_lesson_time(number, subject):
     answer = var.BASE_TIMETABLE.get(number, '')
     if re.match(r".*культур\D и спорт.*", subject) is not None:
@@ -22,13 +23,14 @@ def get_lesson_time(number, subject):
     return answer
 
 
-# ToDo: объединить с create_schedule_message_week
+# ToDo: объединить с create_schedule_message_week, вынести сообщения в template
+# Составление расписания на конкретный день недели с учетом группы
 def create_schedule_message(group: str, request: str, schedules: dict):
-    """Функция составления расписания в ответ на запрос"""
-
+    # если каким-то образом расписание отсутствует (было после обновления)
     if group not in schedules:
         return "Мы обновили расписание. И кажется, для вашей группы у нас не получилось создать расписание("
 
+    # если нет пар для запрашиваемого дня недели
     if request not in schedules[group]:
         return "Пар нет! Можно заняться чем-то другим"
 
@@ -45,8 +47,10 @@ def create_schedule_message(group: str, request: str, schedules: dict):
     return "".join(answer)
 
 
-# ToDo: объединить с create_schedule_message
+# ToDo: объединить с create_schedule_message, вынести сообщения в template
+# Составление расписания на неделю с учетом группы
 def create_schedule_message_week(group: str, schedules: dict):
+    # если каким-то образом расписание отсутствует (было после обновления)
     if group not in schedules:
         return "Мы обновили расписание. И кажется, для вашей группы у нас не получилось создать расписание("
 

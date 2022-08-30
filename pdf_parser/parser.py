@@ -4,20 +4,25 @@ import pprint
 import re
 import pdfplumber
 
+
+# хранение ошибок возникших в ходе программы
 ignore = {
     "error_group": [],
     "error_start_index": [],
     "english_version": []
 }
 
+# списки для определения нового дня недели
 day_week_list = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ",
                  "пн", "вт", "ср", "чт", "пт", "сб"]
 
 day_week_list_eng = ["MON", "TUE", "WED", "THU", "FRI", "SAT",
                      "mon", "tue", "web", "thu", "fri", "sat"]
 
+# переменная для итогового расписания
 schedule_json = {}
 
+# изменения в сравнении с предыдущим расписанием
 differences = {}
 
 
@@ -133,16 +138,25 @@ def print_ignore():
         print(message)
 
 
+# file_comparison сравнивает новое расписание с предыдущей версией
 def file_comparison():
     with open("schedule.json", "r", encoding="utf-8") as read_file:
         schedules_old = json.load(read_file)
 
-    for dif in (set(schedules_old) ^ set(schedule_json)):
-        differences[dif] = {}
-        differences[dif]["old"] = schedules_old.get(dif, {})
-        differences[dif]["new"] = schedule_json.get(dif, {})
+    # перечень всех групп
+    groups = set(schedules_old).union(set(schedule_json))
+
+    # сравнение расписания
+    for g in groups:
+        old = schedules_old.get(g, {})
+        new = schedule_json.get(g, {})
+        if old != new:
+            differences[g] = {}
+            differences[g]["old"] = old
+            differences[g]["new"] = new
 
 
+# print_differences печатает изменения в расписании
 def print_differences():
     for dif, schedule_dif in differences.items():
         print(f"Группа {dif}:")
@@ -153,7 +167,7 @@ def print_differences():
         print("\n", "_______" * 10)
 
 
-# точка входа
+# parse_schedules собирает все функции сбора расписания
 def parse_schedules():
     for path in get_all_path_schedule("schedule_group"):
         file = pdfplumber.open(path)
@@ -174,12 +188,15 @@ def parse_schedules():
 
 
 if __name__ == "__main__":
+    # получение расписания
     parse_schedules()
     print(f"Расписание составлено (всего: {len(schedule_json)} групп)")
 
+    # вывод возникших ошибок
     print("Полученные ошибки: ")
     print_ignore()
 
+    # сравнение нового и старого расписания
     file_comparison()
     print(f"Всего изменений: {len(differences)}")
 
@@ -187,9 +204,8 @@ if __name__ == "__main__":
     if pr_dif == "y":
         print_differences()
 
+    # сохранение изменений
     save = input("\nСохранить расписание [y/n]: ")
     if save == "y":
         with open(f"schedule.json", "w", encoding="utf-8") as write_file:
             json.dump(schedule_json, write_file, indent=2, ensure_ascii=False)
-
-# 501-71,501- 72,501-73

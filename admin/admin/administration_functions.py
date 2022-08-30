@@ -12,6 +12,7 @@ import json
 vk_session = vk_api.VkApi(token=config.TOKEN_VK)
 
 
+# функция отправки сообщения в ВК
 def send_message(user_id, text, attachment=None):
     """Функция для отправки сообщения"""
     args = {
@@ -25,6 +26,7 @@ def send_message(user_id, text, attachment=None):
     vk_session.method('messages.send', args)
 
 
+# получение ID и номера группы из БД
 def query_all():
     # подключение к БД
     conn = psycopg2.connect(**config.db_settings)
@@ -39,6 +41,7 @@ def query_all():
     return res
 
 
+# сохранение состояния БД в JSON-файл
 def backup():
     back_up = query_all()
 
@@ -54,6 +57,7 @@ def dump():
     pass
 
 
+# загрузка изображения на сервер ВК
 def upload_img():
     # Логика выбора загружаемого файла
     images = os.listdir("files/images/new")
@@ -90,11 +94,14 @@ def upload_img():
     print(f"Ссылка на загруженное изображение: {attachment}")
 
 
+# просмотр статистики использования бота
 def statistic():
+    # количество пользователей
     db = query_all()
     print("\t╒ Статистика:")
     print(f"\t╞ {'Количество пользователей':30}| {len(db)}")
 
+    # статистика по группам
     counter_group = {}
     amount_group = set()
 
@@ -111,10 +118,10 @@ def statistic():
         print(f"\t\t╞ {group:8}| {amount}")
 
 
+# рассылка сообщения всем пользователям
 def mailing_all(text: str):
-    """Функция отправки сообщений всем пользователям"""
-    #result = query_all()
-    result = [(config.DEV_ADMIN,)]
+    result = query_all()
+    #result = [(config.DEV_ADMIN,)]
 
     count_row = len(result)
 
@@ -128,6 +135,7 @@ def mailing_all(text: str):
     print(f"\n\tРассылка завершена. Всего оповещено: {count_row}")
 
 
+# функция начала рассылки
 def mailing():
     while True:
         message = input("\tВведите сообщение для рассылки:")
