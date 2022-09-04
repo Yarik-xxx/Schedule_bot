@@ -107,8 +107,9 @@ async def set_user_group(message: Message, pool_connections: psycopg2.pool, sche
             cursor.execute("INSERT INTO group_users (id, number_group) VALUES (%s, %s);", (message.from_id, group))
             answer = "Я запомнил твою группу"
 
-        # закрытие соединения и возврат его в пул
+        # закрытие соединения, возврат его в пул, сохранение изменений
         cursor.close()
+        connection.commit()
         pool_connections.putconn(connection)
 
         await message.answer(answer, keyboard=brd.KEYBOARD_BASE)
@@ -129,8 +130,9 @@ async def start_dialogue_admin(message: Message, pool_connections: psycopg2.pool
         # изменение состояния пользователя в БД
         cursor.execute("INSERT INTO states (user_id) VALUES (%s)", (message.from_id,))
 
-        # закрытие соединения и возврат его в пул
+        # закрытие соединения, возврат его в пул, сохранение изменений
         cursor.close()
+        connection.commit()
         pool_connections.putconn(connection)
 
         await message.answer(tmp.contact_administrator, keyboard=brd.KEYBOARD_CONTACT)
@@ -159,8 +161,9 @@ async def stop_dialogue_admin(message: Message, pool_connections: psycopg2.pool,
         # изменение состояния пользователя в БД
         cursor.execute("DELETE FROM states WHERE user_id=%s", (message.from_id,))
 
-        # закрытие соединения и возврат его в пул
+        # закрытие соединения, возврат его в пул, сохранение изменений
         cursor.close()
+        connection.commit()
         pool_connections.putconn(connection)
 
         # изменение состояния пользователя в оперативной памяти
